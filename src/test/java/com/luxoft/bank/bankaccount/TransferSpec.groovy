@@ -72,6 +72,7 @@ class TransferSpec extends Specification {
         then: "both accounts balances has been correctly passed to the repository"
             1 * accountRepository.save(sourceAccount) >> modifiedSourceAccount
             1 * accountRepository.save(destinationAccount) >> modifiedDestinationAccount
+            2 * accountOperationRepository.save(_)
         and: "returned result is remaining funds in source account"
             result == sourceBalanceExpected
         and: "remaining funds are not less then 0"

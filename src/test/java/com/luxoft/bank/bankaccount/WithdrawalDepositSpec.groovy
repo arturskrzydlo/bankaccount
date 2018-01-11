@@ -33,7 +33,7 @@ class WithdrawalDepositSpec extends Specification {
         and:
             1 * accountRepository.save(debitAccount) >> modifiedAccount
             1 * accountRepository.findOne(_) >> debitAccount
-
+            1 * accountOperationRepository.save(_)
         where:
             initialBalance | withdrawal || expectedResult
             200.0          | 100.0      || 100.0
@@ -90,6 +90,7 @@ class WithdrawalDepositSpec extends Specification {
         and:
             1 * accountRepository.save(_) >> modifiedAccount
             1 * accountRepository.findOne(_) >> debitAccount
+            1 * accountOperationRepository.save(_)
         where:
             initialBalance | deposit || expectedResult
             200.0          | 100.0   || 300.0
