@@ -55,6 +55,48 @@ class WithdrawalDepositSpec extends Specification {
             exception.message == "You exceedes your account balance for " + withDrawalWhichExceedesBalance
     }
 
+    Should "not throw exception when withdrawal exceedes credit card"() {
+
+        given: "withdrawal which exceedes initial balance (which is zero)"
+            def withDrawalWhichExceedesBalance = 100.0
+            accountRepository.findOne(accountId) >> creditAccount
+            accountRepository.save(creditAccount) >> creditAccount
+
+        when:
+            accountService.withdraw(accountId, withDrawalWhichExceedesBalance)
+
+        then:
+            notThrown(NotSufficientFundsException)
+
+    }
+
+    Should "deposit increase balance exactly by deposit amount"() {
+
+        given: "account with #initialBalance balance"
+            debitAccount.setBalance(initialBalance)
+            accountRepository.findOne(accountId) >> debitAccount
+
+        and: "prepared result from db"
+            def modifiedAccount = createSampleDebitAccount()
+            modifiedAccount.setBalance(expectedResult)
+
+        when: "deposit #deposit"
+            def result = accountService.deposit(accountId, deposit)
+
+        then:
+            "returned balance is #expectedResult"
+            result == expectedResult
+        and:
+            1 * accountRepository.save(_) >> modifiedAccount
+            1 * accountRepository.findOne(_) >> debitAccount
+        where:
+            initialBalance | deposit || expectedResult
+            200.0          | 100.0   || 300.0
+            200.0          | 0       || 200.0
+            0              | 0        | 0
+    }
+
+
     def createSampleDebitAccount() {
         def account = new Account()
         account.setAccountType(AccountType.DEBIT)
