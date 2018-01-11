@@ -1,6 +1,5 @@
-package com.luxoft.bank.bankaccount
+package com.luxoft.bank.bankaccount.account
 
-import com.luxoft.bank.bankaccount.account.*
 import spock.lang.Specification
 
 import java.lang.Void as Should

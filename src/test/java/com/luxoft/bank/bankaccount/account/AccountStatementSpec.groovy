@@ -1,6 +1,5 @@
-package com.luxoft.bank.bankaccount
+package com.luxoft.bank.bankaccount.account
 
-import com.luxoft.bank.bankaccount.account.*
 import spock.lang.Specification
 
 import java.lang.Void as Should
@@ -69,7 +68,7 @@ class AccountStatementSpec extends Specification {
             1 * accountRepository.exists(accountId) >> true
     }
 
-    Should "return NoSuchAccount exceptions for account statement request with not existing account id"() {
+    Should "throws NoSuchAccount exceptions for account statement request with not existing account id"() {
 
         given: "not existing account"
             def accountId = 2

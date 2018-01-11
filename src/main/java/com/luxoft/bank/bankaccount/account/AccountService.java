@@ -11,6 +11,6 @@ interface AccountService {
     double transfer(Integer sourceAccountId, Integer destinationAccountId, Double amountOfMoney)
             throws NotSufficientFundsException, NoSuchAccountException;
 
-    AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth);
+    AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth) throws NoSuchAccountException;
 
 }

@@ -29,6 +29,7 @@ import java.util.List;
 
         account.setBalance(account.getBalance() - amountToWithdraw);
         accountRepository.save(account);
+        storeAccountOperation(account, AccountOperationType.WITHDRAWAL, amountToWithdraw);
         return account.getBalance();
     }
 
@@ -36,6 +37,7 @@ import java.util.List;
         Account account = accountRepository.findOne(accountId);
         account.setBalance(account.getBalance() + amountToDeposit);
         accountRepository.save(account);
+        storeAccountOperation(account, AccountOperationType.DEPOSIT, amountToDeposit);
         return account.getBalance();
     }
 
@@ -63,11 +65,19 @@ import java.util.List;
         accountRepository.save(destinationAccount);
         accountRepository.save(sourceAccount);
 
+        storeAccountOperation(sourceAccount, AccountOperationType.TRANSFER, amountToTransfer);
+        storeAccountOperation(destinationAccount, AccountOperationType.TRANSFER, amountToTransfer);
+
         return sourceAccount.getBalance();
 
     }
 
-    @Override public AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth) {
+    @Override public AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth)
+            throws NoSuchAccountException {
+
+        if (!accountRepository.exists(accountId)) {
+            throw new NoSuchAccountException(accountId);
+        }
 
         List<AccountOperation> accountOperations = accountOperationRepository.findByAccountIdAndOperationTime(accountId,
                 yearMonth.getYear(), yearMonth.getMonthValue());
@@ -92,6 +102,17 @@ import java.util.List;
             return account.getBalance() >= amountToBeTakenFromAccount;
         }
         return true;
+    }
+
+    private AccountOperation storeAccountOperation(Account account, AccountOperationType operationType, Double amount) {
+        AccountOperation accountOperation = new AccountOperation();
+        accountOperation.setAccount(account);
+        accountOperation.setAmount(amount);
+        accountOperation.setBalance(account.getBalance());
+        accountOperation.setOperationType(operationType);
+        accountOperation.setOperationTime(LocalDateTime.now());
+
+        return accountOperationRepository.save(accountOperation);
     }
 
 }
