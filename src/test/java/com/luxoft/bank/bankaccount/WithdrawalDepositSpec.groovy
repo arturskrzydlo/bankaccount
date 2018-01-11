@@ -9,7 +9,8 @@ import java.lang.Void as Should
 
 class WithdrawalDepositSpec extends Specification {
 
-    def account = new Account()
+    def debitAccount = createSampleDebitAccount()
+    def creditAccount = createSampleCreditAccount()
 
     def accountId = 1
     def accountRepository = Mock(AccountRepository)
@@ -21,7 +22,7 @@ class WithdrawalDepositSpec extends Specification {
             account.setBalance(initialBalance);
 
         and: "prepared result from db"
-            def modifiedAccount = createSampleAccount()
+            def modifiedAccount = createSampleDebitAccount()
             modifiedAccount.setBalance(expectedResult)
 
         when: "withdraw #withdrawal then amount should be #expectedResult"
@@ -31,8 +32,8 @@ class WithdrawalDepositSpec extends Specification {
             "returned balance is #expectedResult"
             result == expectedResult
         and:
-            1 * accountRepository.save(account) >> modifiedAccount
-            1 * accountRepository.findOne(_) >> account
+            1 * accountRepository.save(debitAccount) >> modifiedAccount
+            1 * accountRepository.findOne(_) >> debitAccount
 
         where:
             initialBalance | withdrawal || expectedResult
@@ -42,8 +43,29 @@ class WithdrawalDepositSpec extends Specification {
 
     }
 
-    def createSampleAccount() {
+    Should "throw NoSufficientFundsException when withdrawal exceed  debit account balance "() {
+
+        given: "withdrawal which exceedes initial balance (which is zero)"
+            def withDrawalWhichExceedesBalance = 100
+            accountRepository.findOne(accountId) >> debitAccount
+
+        when:
+            accountService.withdraw(accountId, withDrawalWhichExceedesBalance)
+
+        then:
+            NotSufficientFundsException exception = thrown()
+            exception.message == "You exceedes your account balance for " + withDrawalWhichExceedesBalance
+    }
+
+    def createSampleDebitAccount() {
         def account = new Account()
+        account.setAccountType(AccountType.DEBIT)
+        return account
+    }
+
+    def createSampleCreditAccount() {
+        def account = new Account()
+        account.setAccountType(AccountType.CREDIT)
         return account
     }
 }
