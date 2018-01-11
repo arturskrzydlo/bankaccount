@@ -4,14 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
 
 @Service class AccountServiceImpl implements AccountService {
 
     private AccountRepository accountRepository;
+    private AccountOperationRepository accountOperationRepository;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository,
+            AccountOperationRepository accountOperationRepository) {
         this.accountRepository = accountRepository;
+        this.accountOperationRepository = accountOperationRepository;
     }
 
     @Override public double withdraw(Integer accountId, Double amountToWithdraw) throws NotSufficientFundsException {
@@ -59,6 +65,26 @@ import javax.transaction.Transactional;
 
         return sourceAccount.getBalance();
 
+    }
+
+    @Override public AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth) {
+
+        List<AccountOperation> accountOperations = accountOperationRepository.findByAccountIdAndOperationTime(accountId,
+                yearMonth.getYear(), yearMonth.getMonthValue());
+
+        return createAccountStatement(accountOperations, accountId, yearMonth);
+    }
+
+    private AccountStatement createAccountStatement(List<AccountOperation> accountOperations, Integer accountId,
+            YearMonth yearMonth) {
+
+        AccountStatement accountStatement = new AccountStatement();
+        accountStatement.setAccountId(accountId);
+        accountStatement.setStatementYearMonth(yearMonth);
+        accountStatement.setStatementDate(LocalDateTime.now());
+        accountStatement.setOperations(accountOperations);
+
+        return accountStatement;
     }
 
     private boolean isEnoughFunds(Account account, Double amountToBeTakenFromAccount) {

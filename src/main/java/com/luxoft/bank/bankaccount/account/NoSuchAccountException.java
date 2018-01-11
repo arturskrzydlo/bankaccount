@@ -2,7 +2,7 @@ package com.luxoft.bank.bankaccount.account;
 
 import java.text.MessageFormat;
 
-public class NoSuchAccountException extends Exception {
+class NoSuchAccountException extends Exception {
 
     private static final String MESSAGE = "Account with id {0} doesnt exists";
     int accountId;

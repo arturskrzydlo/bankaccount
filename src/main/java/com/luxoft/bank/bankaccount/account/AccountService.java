@@ -1,5 +1,7 @@
 package com.luxoft.bank.bankaccount.account;
 
+import java.time.YearMonth;
+
 interface AccountService {
 
     double withdraw(Integer accountId, Double amountToWithdraw) throws NotSufficientFundsException;
@@ -8,5 +10,7 @@ interface AccountService {
 
     double transfer(Integer sourceAccountId, Integer destinationAccountId, Double amountOfMoney)
             throws NotSufficientFundsException, NoSuchAccountException;
+
+    AccountStatement getAccountStatement(Integer accountId, YearMonth yearMonth);
 
 }

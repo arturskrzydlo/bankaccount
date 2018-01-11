@@ -11,7 +11,8 @@ class TransferSpec extends Specification {
     def destinationAccount = createSampleDebitAccount()
 
     def accountRepository = Mock(AccountRepository)
-    def accountService = new AccountServiceImpl(accountRepository)
+    def accountOperationRepository = Mock(AccountOperationRepository)
+    def accountService = new AccountServiceImpl(accountRepository, accountOperationRepository)
 
     def setup() {
         sourceAccount.setId(1)

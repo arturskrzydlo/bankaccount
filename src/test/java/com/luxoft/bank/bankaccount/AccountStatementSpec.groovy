@@ -1,7 +1,6 @@
 package com.luxoft.bank.bankaccount
 
-import com.luxoft.bank.bankaccount.account.Account
-import com.luxoft.bank.bankaccount.account.AccountServiceImpl
+import com.luxoft.bank.bankaccount.account.*
 import spock.lang.Specification
 
 import java.lang.Void as Should
@@ -19,7 +18,8 @@ class AccountStatementSpec extends Specification {
     def account
 
     def accountRepository = Mock(AccountRepository)
-    def accountService = new AccountServiceImpl(accountRepository)
+    def accountOperationRepository = Mock(AccountOperationRepository)
+    def accountService = new AccountServiceImpl(accountRepository, accountOperationRepository)
 
     def setup() {
         createSampleOperationList()
@@ -44,7 +44,6 @@ class AccountStatementSpec extends Specification {
                 List<AccountOperation> operations = Stream.of(transferOperationJanuary, transferOperationJanuary2).collect(Collectors.toList())
                 return operations
             }
-            1 * accountRepository.exists(accountId) >> true
 
     }
 

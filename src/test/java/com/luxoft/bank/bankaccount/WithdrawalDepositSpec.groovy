@@ -12,7 +12,8 @@ class WithdrawalDepositSpec extends Specification {
 
     def accountId = 1
     def accountRepository = Mock(AccountRepository)
-    def accountService = new AccountServiceImpl(accountRepository)
+    def accountOperationRepository = Mock(AccountOperationRepository)
+    def accountService = new AccountServiceImpl(accountRepository, accountOperationRepository)
 
     Should "after withdrawal balance should be substracted with amount of withdrawal"() {
 
