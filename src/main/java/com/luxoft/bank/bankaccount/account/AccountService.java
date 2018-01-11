@@ -6,4 +6,7 @@ interface AccountService {
 
     double deposit(Integer acccountId, Double amountToDeposit);
 
+    double transfer(Integer sourceAccountId, Integer destinationAccountId, Double amountOfMoney)
+            throws NotSufficientFundsException, NoSuchAccountException;
+
 }
