@@ -44,6 +44,73 @@ class TransferSpec extends Specification {
 
     }
 
+    def "when trasnferring, source amount balanced must be decreased and destination account must be increased exacly by transfer amount"() {
+
+        given: "initial accout balanace values and expected results after transfer"
+            def moneyToTransfer = 200
+            def sourceAccountInitialBalance = sourceAccount.getBalance()
+            def destinationAccountInitialBalance = destinationAccount.getBalance()
+            def sourceBalanceExpected = sourceAccountInitialBalance - moneyToTransfer
+            def destinationBalanceExpected = destinationAccountInitialBalance + moneyToTransfer
+
+        and:
+
+            def modifiedSourceAccount = createSampleDebitAccount()
+            modifiedSourceAccount.setBalance(sourceBalanceExpected)
+
+            def modifiedDestinationAccount = createSampleDebitAccount()
+            modifiedDestinationAccount.setBalance(destinationBalanceExpected)
+
+            accountRepository.findOne(sourceAccount.getId()) >> sourceAccount
+            accountRepository.findOne(destinationAccount.getId()) >> destinationAccount
+
+        when:
+            "transfer #moneyToTransfer between two accounts"
+            def result = accountService.transfer(sourceAccount.getId(), destinationAccount.getId(), moneyToTransfer)
+
+        then: "both accounts balances has been correctly passed to the repository"
+            1 * accountRepository.save(sourceAccount) >> modifiedSourceAccount
+            1 * accountRepository.save(destinationAccount) >> modifiedDestinationAccount
+        and: "returned result is remaining funds in source account"
+            result == sourceBalanceExpected
+        and: "remaining funds are not less then 0"
+            result >= 0
+
+    }
+
+
+    def "when source account doesn't exists throw NoSuchAccountException"() {
+
+        given: "existing destination account and not existing source account"
+            def moneyToTransfer = 200.0
+            def sourceAccount = sourceAccount
+            accountRepository.findOne(sourceAccount.getId()) >> null
+            accountRepository.findOne(destinationAccount.getId()) >> destinationAccount
+
+        when: "transferring money from not existing account to existing account"
+            accountService.transfer(sourceAccount.getId(), destinationAccount.getId(), moneyToTransfer)
+
+        then:
+            NoSuchAccountException exc = thrown()
+            exc.message == "Account with id " + sourceAccount.getId() + " doesnt exists"
+    }
+
+    def "when destination account doesn't exists throw NoSuchAccountException"() {
+
+        given: "existing source account and not existing destination account"
+            def moneyToTransfer = 200.0
+            def destinationAccount = destinationAccount
+            accountRepository.findOne(destinationAccount.getId()) >> null
+            accountRepository.findOne(sourceAccount.getId()) >> sourceAccount
+
+        when: "transferring money from not existing account to existing account"
+            accountService.transfer(sourceAccount.getId(), destinationAccount.getId(), moneyToTransfer)
+
+        then:
+            NoSuchAccountException exc = thrown()
+            exc.message == "Account with id " + destinationAccount.getId() + " doesnt exists"
+    }
+
 
     def createSampleDebitAccount() {
         def account = new Account()
