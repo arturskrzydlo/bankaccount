@@ -1,8 +1,6 @@
 package com.luxoft.bank.bankaccount
 
-import com.luxoft.bank.bankaccount.account.Account
-import com.luxoft.bank.bankaccount.account.AccountRepository
-import com.luxoft.bank.bankaccount.account.AccountServiceImpl
+import com.luxoft.bank.bankaccount.account.*
 import spock.lang.Specification
 
 import java.lang.Void as Should
@@ -19,7 +17,7 @@ class WithdrawalDepositSpec extends Specification {
     Should "after withdrawal balance should be substracted with amount of withdrawal"() {
 
         given: "accont with #initialBalance balance"
-            account.setBalance(initialBalance);
+            debitAccount.setBalance(initialBalance);
 
         and: "prepared result from db"
             def modifiedAccount = createSampleDebitAccount()
