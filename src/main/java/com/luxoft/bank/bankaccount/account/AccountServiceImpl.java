@@ -24,6 +24,13 @@ import org.springframework.stereotype.Service;
         return account.getBalance();
     }
 
+    @Override public double deposit(Integer accountId, Double amountToDeposit) {
+        Account account = accountRepository.findOne(accountId);
+        account.setBalance(account.getBalance() + amountToDeposit);
+        accountRepository.save(account);
+        return account.getBalance();
+    }
+
     private boolean isEnoughFunds(Account account, Double amountToBeTakenFromAccount) {
         if (account.getAccountType().equals(AccountType.DEBIT)) {
             return account.getBalance() >= amountToBeTakenFromAccount;
